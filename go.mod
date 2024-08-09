@@ -1,6 +1,6 @@
 module github.com/smallbiznis/go-lib
 
-go 1.22.0
+go 1.22.6
 
 require (
 	github.com/gin-gonic/gin v1.10.0
@@ -8,7 +8,6 @@ require (
 	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/google/uuid v1.6.0
-	github.com/smallbiznis/smallbiznis-api-go-server v0.0.0-20240809072850-518919969bdf
 	go.opentelemetry.io/otel v1.28.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.28.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.28.0
