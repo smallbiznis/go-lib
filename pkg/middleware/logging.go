@@ -88,7 +88,7 @@ func Logging(log *zap.Logger) gin.HandlerFunc {
 		fields = append(fields, zap.Any("http_request", newb))
 
 		if err := c.Errors.Last(); err != nil {
-			fields = append(fields, zap.Any("error", err.Error()))
+			fields = append(fields, zap.Any("error", err))
 		}
 
 		log.Info("", fields...)
