@@ -51,9 +51,19 @@ func validationError(err error, translate ut.Translator) (code int, obj any) {
 	if e, ok := err.(validator.FieldError); ok {
 		code = 400
 		msg := fmt.Errorf(e.Translate(translate)).Error()
-		newErr := errors.BadRequest("InvalidRequest", msg)
+		// newErr := errors.BadRequest("InvalidRequest", msg)
 		obj = gin.H{
-			"error": newErr,
+			"error": gin.H{
+				"status":  code,
+				"name":    "InvalidRequest",
+				"message": msg,
+				"details": []gin.H{
+					{
+						"field": e.Field(),
+						"tags":  e.Tag(),
+					},
+				},
+			},
 		}
 		return
 	}
