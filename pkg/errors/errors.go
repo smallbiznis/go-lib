@@ -2,6 +2,8 @@ package errors
 
 import (
 	"encoding/json"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Error interface {
@@ -9,9 +11,10 @@ type Error interface {
 }
 
 type apiError struct {
-	Status int    `json:"status"`
-	Name   string `json:"name"`
-	Msg    string `json:"message"`
+	Status  int     `json:"status"`
+	Name    string  `json:"name"`
+	Msg     string  `json:"message"`
+	Details []gin.H `json:"details"`
 }
 
 var _ Error = new(apiError)
