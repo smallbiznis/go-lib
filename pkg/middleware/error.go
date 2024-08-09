@@ -9,7 +9,7 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
-	"github.com/smallbiznis/smallbiznis-api-go-server/internal/pkg/errors"
+	"github.com/smallbiznis/go-lib/pkg/errors"
 )
 
 func HandleError(translate ut.Translator) gin.HandlerFunc {
