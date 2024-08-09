@@ -3,6 +3,7 @@ package middleware
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -82,9 +83,13 @@ func Logging(log *zap.Logger) gin.HandlerFunc {
 		c.Request.Body = io.NopCloser(&buf)
 
 		var newb interface{}
-		json.Unmarshal(body, &newb)
+		fmt.Println("Unmarshal: ", json.Unmarshal(body, &newb))
 
 		fields = append(fields, zap.Any("http_request", newb))
+
+		if err := c.Errors.Last(); err != nil {
+			fields = append(fields, zap.Error(err))
+		}
 
 		log.Info("", fields...)
 	}
