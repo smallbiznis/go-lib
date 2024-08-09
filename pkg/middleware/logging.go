@@ -82,13 +82,13 @@ func Logging(log *zap.Logger) gin.HandlerFunc {
 		body, _ = io.ReadAll(tee)
 		c.Request.Body = io.NopCloser(&buf)
 
-		var newb interface{}
+		newb := make(map[string]interface{})
 		fmt.Println("Unmarshal: ", json.Unmarshal(body, &newb))
 
 		fields = append(fields, zap.Any("http_request", newb))
 
 		if err := c.Errors.Last(); err != nil {
-			fields = append(fields, zap.Error(err))
+			fields = append(fields, zap.Any("error", err.Error()))
 		}
 
 		log.Info("", fields...)
