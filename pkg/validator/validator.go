@@ -8,7 +8,16 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
+	"go.uber.org/fx"
 )
+
+var Validator = fx.Module("validator", fx.Options(
+	fx.Provide(NewValidator),
+))
+
+var Translation = fx.Module("translation", fx.Options(
+	fx.Provide(NewTranslation),
+))
 
 func NewValidator() (v *validator.Validate) {
 	v = validator.New()
