@@ -19,7 +19,7 @@ func init() {
 	}
 }
 
-var Module = fx.Module("server", fx.Options(
+var Module = fx.Module("http.server", fx.Options(
 	fx.Provide(
 		NewServer,
 	),
