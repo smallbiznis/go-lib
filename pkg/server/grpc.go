@@ -21,7 +21,7 @@ var (
 		fx.Invoke(func(lc fx.Lifecycle, server *grpc.Server) {
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
-					lis, err := net.Listen("tcp", env.Lookup("GRPC_PORT", ":50051"))
+					lis, err := net.Listen("tcp", env.Lookup("GRPC_PORT", ":4317"))
 					if err != nil {
 						return err
 					}
