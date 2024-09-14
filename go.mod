@@ -1,6 +1,8 @@
 module github.com/smallbiznis/go-lib
 
-go 1.18
+go 1.21
+
+toolchain go1.21.0
 
 require (
 	github.com/gin-gonic/gin v1.10.0
