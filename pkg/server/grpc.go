@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
 	"github.com/smallbiznis/go-lib/pkg/env"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -39,6 +40,12 @@ var (
 
 func NewGrpcServer(trace *sdktrace.TracerProvider, opts ...grpc.ServerOption) *grpc.Server {
 	return grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			validator.UnaryServerInterceptor(validator.WithFailFast()),
+		),
+		grpc.ChainStreamInterceptor(
+			validator.StreamServerInterceptor(validator.WithFailFast()),
+		),
 		grpc.StatsHandler(
 			otelgrpc.NewServerHandler(
 				otelgrpc.WithTracerProvider(trace),
