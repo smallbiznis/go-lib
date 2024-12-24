@@ -18,6 +18,7 @@ import (
 var (
 	GrpcServerProvider = fx.Module("grpc.server", fx.Options(
 		fx.Provide(
+			NewServerOption,
 			NewGrpcServer,
 		),
 	))
