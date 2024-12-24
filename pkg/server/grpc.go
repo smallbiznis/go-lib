@@ -103,17 +103,5 @@ func NewServerOption(
 }
 
 func NewGrpcServer(trace *sdktrace.TracerProvider, opts ...grpc.ServerOption) *grpc.Server {
-	return grpc.NewServer(
-		grpc.ChainUnaryInterceptor(
-			validator.UnaryServerInterceptor(validator.WithFailFast()),
-		),
-		grpc.ChainStreamInterceptor(
-			validator.StreamServerInterceptor(validator.WithFailFast()),
-		),
-		grpc.StatsHandler(
-			otelgrpc.NewServerHandler(
-				otelgrpc.WithTracerProvider(trace),
-			),
-		),
-	)
+	return grpc.NewServer(opts...)
 }
