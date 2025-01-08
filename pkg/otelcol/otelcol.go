@@ -3,6 +3,7 @@ package otelcol
 import (
 	"context"
 
+	otelpyroscope "github.com/grafana/otel-profiling-go"
 	"github.com/smallbiznis/go-lib/pkg/env"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
@@ -91,7 +92,8 @@ func InitTraceProvider(resource *resource.Resource) (*sdktrace.TracerProvider, e
 		sdktrace.WithResource(resource),
 		sdktrace.WithSpanProcessor(bsp),
 	)
-	otel.SetTracerProvider(tracerProvider)
+
+	otel.SetTracerProvider(otelpyroscope.NewTracerProvider(tracerProvider))
 
 	// set global propagator to tracecontext (the default is no-op).
 	// otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
