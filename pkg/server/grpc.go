@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
@@ -80,20 +81,42 @@ func InterceptorLogger(l *zap.Logger) logging.Logger {
 	})
 }
 
+// Unary Server Interceptor - Custom Middleware
+func InternalInterceptor(
+	ctx context.Context,
+	req interface{},
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (interface{}, error) {
+	// Logika sebelum pemanggilan handler
+	fmt.Println("Before handler:", info.FullMethod)
+
+	// Menangani permintaan (melanjutkan ke handler)
+	start := time.Now()
+	resp, err := handler(ctx, req)
+
+	// Logika setelah pemanggilan handler
+	duration := time.Since(start)
+	fmt.Printf("After handler: %v, Duration: %s, Error: %v\n", info.FullMethod, duration, err)
+
+	// Mengembalikan respons dan error
+	return resp, err
+}
+
 func NewServerOption(
 	trace *sdktrace.TracerProvider,
 	metric *metric.MeterProvider,
-	logger *zap.Logger,
 ) (options []grpc.ServerOption) {
 
 	options = []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
+			InternalInterceptor,
 			validator.UnaryServerInterceptor(validator.WithFailFast()),
-			logging.UnaryServerInterceptor(InterceptorLogger(logger)),
+			logging.UnaryServerInterceptor(InterceptorLogger(zap.L())),
 		),
 		grpc.ChainStreamInterceptor(
 			validator.StreamServerInterceptor(validator.WithFailFast()),
-			logging.StreamServerInterceptor(InterceptorLogger(logger)),
+			logging.StreamServerInterceptor(InterceptorLogger(zap.L())),
 		),
 		grpc.StatsHandler(
 			otelgrpc.NewServerHandler(
