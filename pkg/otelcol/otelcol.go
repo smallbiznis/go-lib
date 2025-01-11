@@ -89,17 +89,17 @@ func InitTraceProvider(resource *resource.Resource) (*sdktrace.TracerProvider, e
 	// span processor to aggregate spans before export.
 	bsp := sdktrace.NewBatchSpanProcessor(tracerExp)
 	tracerProvider := sdktrace.NewTracerProvider(
-		sdktrace.WithResource(resource),
+		sdktrace.WithBatcher(tracerExp),
 		sdktrace.WithSpanProcessor(bsp),
+		sdktrace.WithResource(resource),
 	)
 
 	otel.SetTracerProvider(otelpyroscope.NewTracerProvider(tracerProvider))
 
 	// set global propagator to tracecontext (the default is no-op).
-	// otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
-	// 	propagation.TraceContext{}, propagation.Baggage{},
-	// ))
-	otel.SetTextMapPropagator(propagation.TraceContext{})
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{}, propagation.Baggage{},
+	))
 
 	// Shutdown will flush any remaining spans and shut down the exporter.
 	return tracerProvider, nil

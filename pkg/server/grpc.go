@@ -9,6 +9,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
 	"github.com/smallbiznis/go-lib/pkg/env"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel/sdk/metric"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -81,6 +82,7 @@ func InterceptorLogger(l *zap.Logger) logging.Logger {
 
 func NewServerOption(
 	trace *sdktrace.TracerProvider,
+	metric *metric.MeterProvider,
 	logger *zap.Logger,
 ) (options []grpc.ServerOption) {
 
@@ -96,6 +98,7 @@ func NewServerOption(
 		grpc.StatsHandler(
 			otelgrpc.NewServerHandler(
 				otelgrpc.WithTracerProvider(trace),
+				otelgrpc.WithMeterProvider(metric),
 			),
 		),
 	}

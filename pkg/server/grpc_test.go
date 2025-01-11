@@ -11,6 +11,7 @@ func TestGrpcServer(t *testing.T) {
 	if err := fx.New(
 		otelcol.Resource,
 		otelcol.TraceProvider,
+		otelcol.MetricProvider,
 		GrpcServerProvider,
 		GrpcServerInvoke,
 	).Err(); err != nil {
