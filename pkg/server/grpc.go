@@ -131,8 +131,8 @@ func NewServerOption(
 ) (options []grpc.ServerOption) {
 
 	options = []grpc.ServerOption{
-		grpc.UnaryInterceptor(TraceInterceptor),
 		grpc.ChainUnaryInterceptor(
+			TraceInterceptor,
 			validator.UnaryServerInterceptor(validator.WithFailFast()),
 			logging.UnaryServerInterceptor(InterceptorLogger(zap.L())),
 		),
