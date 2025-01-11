@@ -4,17 +4,20 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"time"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
 	"github.com/smallbiznis/go-lib/pkg/env"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/metric"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 var (
@@ -82,25 +85,42 @@ func InterceptorLogger(l *zap.Logger) logging.Logger {
 }
 
 // Unary Server Interceptor - Custom Middleware
-func InternalInterceptor(
+func TraceInterceptor(
 	ctx context.Context,
 	req interface{},
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
-	// Logika sebelum pemanggilan handler
-	fmt.Println("Before handler:", info.FullMethod)
+	// Ambil metadata (header) dari konteks
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("metadata is not present in context")
+	}
 
-	// Menangani permintaan (melanjutkan ke handler)
-	start := time.Now()
-	resp, err := handler(ctx, req)
+	// Cari trace_id dalam header (gunakan X-B3-TraceId atau yang sesuai)
+	traceID := ""
+	if len(md["X-B3-TraceId"]) > 0 {
+		traceID = md["X-B3-TraceId"][0]
+	} else if len(md["X-Request-Id"]) > 0 {
+		traceID = md["X-Request-Id"][0]
+	}
 
-	// Logika setelah pemanggilan handler
-	duration := time.Since(start)
-	fmt.Printf("After handler: %v, Duration: %s, Error: %v\n", info.FullMethod, duration, err)
+	// Log trace_id atau simpan dalam context
+	if traceID != "" {
+		// Anda dapat menggunakan trace_id di sini atau melanjutkan dengan span tracing
+		fmt.Println("Received trace_id:", traceID)
 
-	// Mengembalikan respons dan error
-	return resp, err
+		// Buat span dengan trace_id (opsional)
+		tracer := otel.Tracer("server")
+		_, span := tracer.Start(ctx, "Processing request", trace.WithAttributes(attribute.String("trace_id", traceID)))
+		defer span.End()
+
+		// Tambahkan trace_id ke dalam konteks untuk diteruskan ke proses berikutnya
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+	}
+
+	// Lanjutkan dengan eksekusi handler gRPC
+	return handler(ctx, req)
 }
 
 func NewServerOption(
@@ -109,8 +129,8 @@ func NewServerOption(
 ) (options []grpc.ServerOption) {
 
 	options = []grpc.ServerOption{
+		grpc.UnaryInterceptor(TraceInterceptor),
 		grpc.ChainUnaryInterceptor(
-			InternalInterceptor,
 			validator.UnaryServerInterceptor(validator.WithFailFast()),
 			logging.UnaryServerInterceptor(InterceptorLogger(zap.L())),
 		),
