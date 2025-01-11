@@ -97,6 +97,8 @@ func TraceInterceptor(
 		return nil, fmt.Errorf("metadata is not present in context")
 	}
 
+	zap.L().With(zap.Any("metadata", md)).Info("TraceInterceptor")
+
 	// Cari trace_id dalam header (gunakan X-B3-TraceId atau yang sesuai)
 	traceID := ""
 	if len(md["X-B3-TraceId"]) > 0 {
