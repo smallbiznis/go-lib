@@ -55,6 +55,10 @@ func InterceptorLogger(l *zap.Logger) logging.Logger {
 	return logging.LoggerFunc(func(ctx context.Context, lvl logging.Level, msg string, fields ...any) {
 		f := make([]zap.Field, 0, len(fields)/2)
 
+		md, _ := metadata.FromOutgoingContext(ctx)
+
+		fmt.Printf("Metadata: %v\n", md)
+
 		for i := 0; i < len(fields); i += 2 {
 			key := fields[i]
 			value := fields[i+1]
