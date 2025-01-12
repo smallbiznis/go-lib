@@ -81,7 +81,7 @@ func InitTraceProvider(resource *resource.Resource) (*sdktrace.TracerProvider, e
 
 	tracerExp, err := otlptrace.New(context.Background(), traceClient)
 	if err != nil {
-		zap.Error(err)
+		zap.L().With(zap.Error(err)).Error("Failed to connecting otel traceprovider")
 		return nil, err
 	}
 
@@ -112,6 +112,7 @@ func InitMetricProvider(resource *resource.Resource) (*metric.MeterProvider, err
 		otlpmetrichttp.WithInsecure(),
 	)
 	if err != nil {
+		zap.L().With(zap.Error(err)).Error("Failed to connecting otel meterprovider")
 		return nil, err
 	}
 
