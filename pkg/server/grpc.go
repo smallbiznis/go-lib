@@ -8,6 +8,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
 	"github.com/smallbiznis/go-lib/pkg/env"
+	"github.com/smallbiznis/go-lib/pkg/otelcol"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -22,6 +23,9 @@ import (
 
 var (
 	GrpcServerProvider = fx.Module("grpc.server", fx.Options(
+		otelcol.Resource,
+		otelcol.TraceProvider,
+		otelcol.MetricProvider,
 		fx.Provide(
 			NewServerOption,
 			NewGrpcServer,
@@ -133,6 +137,7 @@ func NewServerOption(
 ) (options []grpc.ServerOption) {
 
 	options = []grpc.ServerOption{
+		grpc.UnaryInterceptor(TraceInterceptor),
 		grpc.ChainUnaryInterceptor(
 			TraceInterceptor,
 			validator.UnaryServerInterceptor(validator.WithFailFast()),
@@ -153,6 +158,6 @@ func NewServerOption(
 	return
 }
 
-func NewGrpcServer(trace *sdktrace.TracerProvider, opts ...grpc.ServerOption) *grpc.Server {
+func NewGrpcServer(opts ...grpc.ServerOption) *grpc.Server {
 	return grpc.NewServer(opts...)
 }
