@@ -91,6 +91,8 @@ func TraceInterceptor(
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
+	fmt.Println("Entering TraceInterceptor")
+
 	// Ambil metadata (header) dari konteks
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
