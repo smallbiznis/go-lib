@@ -95,15 +95,11 @@ func TraceInterceptor(
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
-	fmt.Println("Entering TraceInterceptor")
-
 	// Ambil metadata (header) dari konteks
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, fmt.Errorf("metadata is not present in context")
 	}
-
-	zap.L().With(zap.Any("metadata", md)).Info("TraceInterceptor")
 
 	// Cari trace_id dalam header (gunakan X-B3-TraceId atau yang sesuai)
 	traceID := ""
