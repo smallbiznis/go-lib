@@ -7,7 +7,8 @@ import (
 	"github.com/smallbiznis/go-lib/pkg/env"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -74,20 +75,20 @@ func InitTraceProvider(resource *resource.Resource) (*sdktrace.TracerProvider, e
 	// defer cancel()
 
 	// Set up a trace exporter
-	// traceClient := otlptracehttp.NewClient(
-	// 	otlptracehttp.WithInsecure(),
-	// )
+	traceClient := otlptracehttp.NewClient(
+		otlptracehttp.WithInsecure(),
+	)
 
-	// tracerExp, err := otlptrace.New(context.Background(), traceClient)
-	// if err != nil {
-	// 	zap.L().With(zap.Error(err)).Error("Failed to connecting otel traceprovider")
-	// 	return nil, err
-	// }
-
-	tracerExp, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
+	tracerExp, err := otlptrace.New(context.Background(), traceClient)
 	if err != nil {
+		zap.L().With(zap.Error(err)).Error("Failed to connecting otel traceprovider")
 		return nil, err
 	}
+
+	// tracerExp, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	// Register the trace exporter with a TracerProvider, using a batch
 	// span processor to aggregate spans before export.
