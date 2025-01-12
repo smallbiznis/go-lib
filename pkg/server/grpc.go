@@ -55,9 +55,16 @@ func InterceptorLogger(l *zap.Logger) logging.Logger {
 	return logging.LoggerFunc(func(ctx context.Context, lvl logging.Level, msg string, fields ...any) {
 		f := make([]zap.Field, 0, len(fields)/2)
 
-		md, _ := metadata.FromOutgoingContext(ctx)
+		span := trace.SpanFromContext(ctx)
+		if span.SpanContext().HasTraceID() {
+			f = append(f, zap.String("trace_id", span.SpanContext().TraceID().String()))
+		}
 
-		fmt.Printf("Metadata: %v\n", md)
+		if span.SpanContext().HasSpanID() {
+			f = append(f, zap.String("span_id", span.SpanContext().SpanID().String()))
+		}
+
+		fmt.Printf("Metadata: %v\n", span)
 
 		for i := 0; i < len(fields); i += 2 {
 			key := fields[i]
