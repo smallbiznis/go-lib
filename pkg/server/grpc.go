@@ -58,8 +58,6 @@ func InterceptorLogger(l *zap.Logger) logging.Logger {
 		span := trace.SpanFromContext(ctx)
 		defer span.End()
 
-		span.SetName("Incoming Request")
-
 		if span.SpanContext().HasTraceID() {
 			f = append(f, zap.String("trace_id", span.SpanContext().TraceID().String()))
 		}
